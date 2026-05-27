@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Michael Balamotis · Balamo Life Sciences</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e0c;
+      --surface: #111714;
+      --border: #1e2b23;
+      --accent: #3dff8f;
+      --accent2: #a8ffcb;
+      --text: #d6ede0;
+      --muted: #5a7a66;
+      --tag-bg: #0f1f15;
+      --tag-border: #1e3828;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── BACKGROUND GRID ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.3;
+    }
+
+    /* ── GLOWING ORBS ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(61,255,143,0.06); top: -150px; right: -100px; }
+    .orb-2 { width: 300px; height: 300px; background: rgba(61,255,143,0.04); bottom: 10%; left: -80px; }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,14,12,0.85);
+      backdrop-filter: blur(12px);
+    }
+    .nav-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 100px 0 80px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: var(--accent);
+    }
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(42px, 7vw, 72px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: #e8f5ed;
+      margin-bottom: 8px;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .hero-subtitle {
+      font-family: 'Fraunces', serif;
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--muted);
+      margin-top: 24px;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+    .hero-meta {
+      margin-top: 36px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border: 1px solid var(--tag-border);
+      background: var(--tag-bg);
+      border-radius: 3px;
+      font-size: 11px;
+      color: var(--accent2);
+      letter-spacing: 0.05em;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ── SECTION HEADINGS ── */
+    section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 36px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .about-text {
+      font-family: 'Fraunces', serif;
+      font-size: 16px;
+      font-weight: 300;
+      color: #b0ceba;
+      line-height: 1.8;
+    }
+    .about-text strong {
+      font-weight: 600;
+      color: var(--accent2);
+    }
+    .skills-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skills-list li {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-left: 2px solid var(--border);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .skills-list li:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+    }
+    .skills-list li span {
+      color: var(--accent);
+      margin-right: 8px;
+    }
+
+    /* ── REPO CARDS ── */
+    .repos-grid {
+      display: grid;
+      gap: 2px;
+    }
+    .repo-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+      padding: 28px 32px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .repo-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: transparent;
+      transition: background 0.2s;
+    }
+    .repo-card:hover {
+      background: #131a15;
+      border-color: #2a3d30;
+      transform: translateX(4px);
+    }
+    .repo-card:hover::before { background: var(--accent); }
+
+    .repo-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--accent2);
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+    .repo-desc {
+      font-family: 'Fraunces', serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .repo-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1px solid var(--tag-border);
+      color: var(--muted);
+      border-radius: 2px;
+    }
+    .tag.lang-r { border-color: #2a4a1e; color: #6dc44d; }
+    .tag.lang-py { border-color: #1e3a4a; color: #4da8c4; }
+    .tag.lang-html { border-color: #3a2a1e; color: #c47d4d; }
+
+    .repo-arrow {
+      font-size: 18px;
+      color: var(--border);
+      margin-top: 2px;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .repo-card:hover .repo-arrow {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 40px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .footer-link {
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .footer-link:hover { color: var(--accent); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero { animation: fadeUp 0.6s ease both; }
+    .hero-eyebrow { animation: fadeUp 0.5s 0.1s ease both; }
+    h1 { animation: fadeUp 0.6s 0.15s ease both; }
+    .hero-subtitle { animation: fadeUp 0.6s 0.25s ease both; }
+    .hero-meta { animation: fadeUp 0.6s 0.35s ease both; }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .about-grid { grid-template-columns: 1fr; }
+      .repo-card { grid-template-columns: 1fr; }
+      .repo-arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">mbalamo</a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="https://github.com/mbalamo" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <p class="hero-eyebrow">Balamo Life Sciences</p>
+    <h1>Michael <em>Balamotis</em></h1>
+    <p class="hero-subtitle">
+      Molecular biologist by real-world training, molecular bioinformation by choice, computer programmer by serendipity, and human being by birth.
+    </p>
+    <div class="hero-meta">
+      <span class="badge"><span class="badge-dot"></span> Molecular Biology</span>
+      <span class="badge">R &amp; Python</span>
+      <span class="badge">Bioinformatics</span>
+      <span class="badge">NGS / qPCR</span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label">About</p>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          Working at the intersection of <strong>wet lab biology</strong> and <strong>computational analysis</strong>,
+          I build robust scripts and tools that bridge the bench and the terminal. My work thus far spans primer
+          design, assay validation, restriction enzyme mapping, DNA fragment prediction, and quality-control
+          pipelines for next-generation sequencing libraries.
+        </p>
+        <br />
+        <p>
+          I believe the natural world is not uniform. It is dynamic and chaotic. Therefore, I write code that embraces that reality
+          rather than hiding behind oversimplified assumptions and hopeful maybes. I ride the chaos.
+        </p>
+      </div>
+      <ul class="skills-list">
+        <li><span>▸</span> R / Bioconductor</li>
+        <li><span>▸</span> Python / Biopython</li>
+        <li><span>▸</span> FASTA / IUPAC</li>
+        <li><span>▸</span> qPCR / NGS / ddPCR</li>
+        <li><span>▸</span> Molecular biology</li>
+        <li><span>▸</span> 16S Metagenomics / WGS</li>
+        <li><span>▸</span> R Markdown / HTML</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <p class="section-label">Projects</p>
+    <div class="repos-grid">
+
+      <a class="repo-card" href="https://github.com/mbalamo/R_Assay_Validation_Report" target="_blank">
+        <div>
+          <div class="repo-name">R_Assay_Validation_Report</div>
+          <p class="repo-desc">
+            An R Markdown script that converts raw multiplex qPCR/ddPCR-derived fluorescence data into a
+            human-readable pass/fail validation report. Metrics include flagging off-target signals, low abundance,
+            and failed primer 4-plex interacrtions. The intention is to enable a lab RA to can act fast with new 
+            assays that perform out-of-the-box, or to rapidly escalate the sepcific assay issue to senior staff.
+          </p>
+          <div class="repo-tags">
+            <span class="tag lang-r">R</span>
+            <span class="tag lang-html">HTML</span>
+            <span class="tag">qPCR</span>
+            <span class="tag">ddPCR</span>
+            <span class="tag">Primer Design</span>
+            <span class="tag">Report</span>
+          </div>
+        </div>
+        <div class="repo-arrow">→</div>
+      </a>
+
+      <a class="repo-card" href="https://github.com/mbalamo/R_DNA_digest_fragments" target="_blank">
+        <div>
+          <div class="repo-name">R_DNA_digest_fragments</div>
+          <p class="repo-desc">
+            Restriction Enzyme DNA Digest Prediction (RE-D-DiP) is an R script that uses BiocManager
+            and DECIPHER to analyze real genomic sequences and plot actual fragment-size distributions. 
+            The purpose is to reveal that RE cut sites are anything but uniformly distributed across 
+            the human genome, as well as other genomes, and therefore assist in picking enzymes or 
+            combination of REs to tune enzymatic digestion to the size needed for downstream library prep and NGS.
+          </p>
+          <div class="repo-tags">
+            <span class="tag lang-r">R</span>
+            <span class="tag">Bioconductor</span>
+            <span class="tag">NGS Prep</span>
+            <span class="tag">Fragment Analysis</span>
+          </div>
+        </div>
+        <div class="repo-arrow">→</div>
+      </a>
+
+      <a class="repo-card" href="https://github.com/mbalamo/Py_motif_search_counter" target="_blank">
+        <div>
+          <div class="repo-name">Py_motif_search_counter</div>
+          <p class="repo-desc">
+            A Python tool for searching DNA for restriction endonuclease binding motifs, including support for N-length motifs and full
+            IUPAC degeneracy, searched across a multi-entry FASTA file. The original intent was designed to locate methylation-sensitive
+            RE sites within cancer gene promoters. Special methylation-dependent REs could then be applied to a population of molecules
+            to test for hypo/hyper methylation given these identified motifs. The script output, per-entry in the FASTA file, is a 
+            CSV file of motif positions and cut offsets.
+          </p>
+          <div class="repo-tags">
+            <span class="tag lang-py">Python</span>
+            <span class="tag">IUPAC</span>
+            <span class="tag">FASTA</span>
+            <span class="tag">Methylation</span>
+            <span class="tag">Cancer Genomics</span>
+          </div>
+        </div>
+        <div class="repo-arrow">→</div>
+      </a>
+
+      <a class="repo-card" href="https://github.com/mbalamo/Py_16S_chimera_hunter" target="_blank">
+        <div>
+          <div class="repo-name">Py_16S_chimera_hunter</div>
+          <p class="repo-desc">
+            A two-part Python pipeline for quality-controlling 16S long-read sequencing data. Part one
+            generates mock FASTA contigs with controllable chimeric, truncated, and undefined fractions.
+            Part two hunts chimeric ends by anchoring V1/V9 regions against a Zymo microbial standard. 
+            The output is a text file summary of the match metrics and count/percentage bar plots.
+          </p>
+          <div class="repo-tags">
+            <span class="tag lang-py">Python</span>
+            <span class="tag">16S rRNA</span>
+            <span class="tag">Metagenomics</span>
+            <span class="tag">QC Methods</span>
+            <span class="tag">Chimera Detection</span>
+          </div>
+        </div>
+        <div class="repo-arrow">→</div>
+      </a>
+
+      <a class="repo-card" href="https://github.com/mbalamo/mbalamo.github.io" target="_blank">
+        <div>
+          <div class="repo-name">mbalamo.github.io</div>
+          <p class="repo-desc">
+            This site is the public home for Balamo Life Sciences products and open-source bioinformatics tools. Enjoy.
+          </p>
+          <div class="repo-tags">
+            <span class="tag lang-html">HTML</span>
+            <span class="tag">GitHub Pages</span>
+          </div>
+        </div>
+        <div class="repo-arrow">→</div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="footer-text">© 2026 Michael Balamotis · Balamo Life Sciences</p>
+    <a class="footer-link" href="https://github.com/mbalamo" target="_blank">github.com/mbalamo ↗</a>
+  </footer>
+
+</div>
+</body>
+</html>
